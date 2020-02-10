@@ -2,7 +2,7 @@
  * @license
  * Alfresco Example Content Application
  *
- * Copyright (C) 2005 - 2019 Alfresco Software Limited
+ * Copyright (C) 2005 - 2020 Alfresco Software Limited
  *
  * This file is part of the Alfresco Example Content Application.
  * If the software was purchased under a paid Alfresco license, the terms of
@@ -24,13 +24,35 @@
  */
 
 import { Action } from '@ngrx/store';
+import { Node } from '@alfresco/js-api';
 
 export enum TemplateActionTypes {
-  CreateFileFromTemplate = 'CREATE_FILE_FROM_TEMPLATE'
+  FileFromTemplate = 'FILE_FROM_TEMPLATE',
+  FolderFromTemplate = 'FOLDER_FROM_TEMPLATE',
+  CreateFromTemplate = 'CREATE_FROM_TEMPLATE',
+  CreateFromTemplateSuccess = 'CREATE_FROM_TEMPLATE_SUCCESS'
 }
 
-export class CreateFileFromTemplate implements Action {
-  readonly type = TemplateActionTypes.CreateFileFromTemplate;
+export class FileFromTemplate implements Action {
+  readonly type = TemplateActionTypes.FileFromTemplate;
 
   constructor() {}
+}
+
+export class FolderFromTemplate implements Action {
+  readonly type = TemplateActionTypes.FolderFromTemplate;
+
+  constructor() {}
+}
+
+export class CreateFromTemplate implements Action {
+  readonly type = TemplateActionTypes.CreateFromTemplate;
+
+  constructor(public payload: Node) {}
+}
+
+export class CreateFromTemplateSuccess implements Action {
+  readonly type = TemplateActionTypes.CreateFromTemplateSuccess;
+
+  constructor(public node: Node) {}
 }

@@ -2,7 +2,7 @@
  * @license
  * Alfresco Example Content Application
  *
- * Copyright (C) 2005 - 2019 Alfresco Software Limited
+ * Copyright (C) 2005 - 2020 Alfresco Software Limited
  *
  * This file is part of the Alfresco Example Content Application.
  * If the software was purchased under a paid Alfresco license, the terms of
@@ -155,7 +155,7 @@ describe('Search filters', () => {
       await sizeFilter.expandPanel();
       await sizeFilter.checkSizeHuge();
 
-      expect(await dataTable.isEmptyList()).toBe(true, 'list is not empty');
+      expect(await dataTable.isEmpty()).toBe(true, 'list is not empty');
     });
 
     it('Filter by multiple size categories - [C279203]', async () => {

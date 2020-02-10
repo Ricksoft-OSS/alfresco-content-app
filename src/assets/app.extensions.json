@@ -114,8 +114,23 @@
         "icon": "description",
         "title": "APP.NEW_MENU.MENU_ITEMS.FILE_TEMPLATE",
         "description": "APP.NEW_MENU.MENU_ITEMS.FILE_TEMPLATE",
+        "description-disabled": "APP.NEW_MENU.TOOLTIPS.CREATE_FILE_NOT_ALLOWED",
         "actions": {
-          "click": "CREATE_FILE_FROM_TEMPLATE"
+          "click": "FILE_FROM_TEMPLATE"
+        },
+        "rules": {
+          "enabled": "app.navigation.folder.canUpload"
+        }
+      },
+      {
+        "id": "app.create.folderFromTemplate",
+        "order": 800,
+        "icon": "create_new_folder",
+        "title": "APP.NEW_MENU.MENU_ITEMS.FOLDER_TEMPLATE",
+        "description": "APP.NEW_MENU.MENU_ITEMS.FOLDER_TEMPLATE",
+        "description-disabled": "APP.NEW_MENU.TOOLTIPS.CREATE_FOLDER_NOT_ALLOWED",
+        "actions": {
+          "click": "FOLDER_FROM_TEMPLATE"
         },
         "rules": {
           "enabled": "app.navigation.folder.canUpload"

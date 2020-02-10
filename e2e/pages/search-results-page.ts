@@ -2,7 +2,7 @@
  * @license
  * Alfresco Example Content Application
  *
- * Copyright (C) 2005 - 2019 Alfresco Software Limited
+ * Copyright (C) 2005 - 2020 Alfresco Software Limited
  *
  * This file is part of the Alfresco Example Content Application.
  * If the software was purchased under a paid Alfresco license, the terms of
@@ -44,8 +44,8 @@ export class SearchResultsPage extends BrowsingPage {
   chipList: ElementFinder = this.root.element(by.css(SearchResultsPage.selectors.chipList));
   infoText: ElementFinder = this.root.element(by.css(SearchResultsPage.selectors.infoText));
 
-  sortingPicker = new SearchSortingPicker(this.root);
-  filters = new SearchFilters(this.root);
+  sortingPicker = new SearchSortingPicker(SearchResultsPage.selectors.root);
+  filters = new SearchFilters(SearchResultsPage.selectors.root);
 
   async waitForResults(): Promise<void> {
     await this.dataTable.waitForBody();

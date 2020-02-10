@@ -2,7 +2,7 @@
  * @license
  * Alfresco Example Content Application
  *
- * Copyright (C) 2005 - 2019 Alfresco Software Limited
+ * Copyright (C) 2005 - 2020 Alfresco Software Limited
  *
  * This file is part of the Alfresco Example Content Application.
  * If the software was purchased under a paid Alfresco license, the terms of
@@ -25,73 +25,102 @@
 
 import { Effect, Actions, ofType } from '@ngrx/effects';
 import { Injectable } from '@angular/core';
-import {
-  map,
-  withLatestFrom,
-  switchMap,
-  catchError,
-  debounceTime,
-  flatMap,
-  skipWhile
-} from 'rxjs/operators';
+import { map, switchMap, debounceTime, take, catchError } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
 import {
-  CreateFileFromTemplate,
+  FileFromTemplate,
+  FolderFromTemplate,
+  CreateFromTemplate,
+  CreateFromTemplateSuccess,
   TemplateActionTypes,
   getCurrentFolder,
   AppStore,
   SnackbarErrorAction
 } from '@alfresco/aca-shared/store';
-import { CreateFileFromTemplateService } from '../../services/create-file-from-template.service';
+import {
+  NodeTemplateService,
+  TemplateDialogConfig
+} from '../../services/node-template.service';
 import { AlfrescoApiService } from '@alfresco/adf-core';
 import { ContentManagementService } from '../../services/content-management.service';
-import { from, of, Observable } from 'rxjs';
-import { NodeEntry, NodeBodyUpdate, MinimalNode } from '@alfresco/js-api';
+import { from, Observable, of } from 'rxjs';
+import { NodeEntry, NodeBodyUpdate, Node } from '@alfresco/js-api';
+import { MatDialog } from '@angular/material/dialog';
 
 @Injectable()
 export class TemplateEffects {
   constructor(
+    private matDialog: MatDialog,
     private content: ContentManagementService,
     private store: Store<AppStore>,
     private apiService: AlfrescoApiService,
     private actions$: Actions,
-    private createFileFromTemplateService: CreateFileFromTemplateService
+    private nodeTemplateService: NodeTemplateService
   ) {}
 
   @Effect({ dispatch: false })
   fileFromTemplate$ = this.actions$.pipe(
-    ofType<CreateFileFromTemplate>(TemplateActionTypes.CreateFileFromTemplate),
+    ofType<FileFromTemplate>(TemplateActionTypes.FileFromTemplate),
     map(() => {
-      this.createFileFromTemplateService
-        .openTemplatesDialog()
+      this.openDialog({
+        relativePath: 'Data Dictionary/Node Templates',
+        selectionType: 'file'
+      });
+    })
+  );
+
+  @Effect({ dispatch: false })
+  folderFromTemplate$ = this.actions$.pipe(
+    ofType<FolderFromTemplate>(TemplateActionTypes.FolderFromTemplate),
+    map(() =>
+      this.openDialog({
+        relativePath: 'Data Dictionary/Space Templates',
+        selectionType: 'folder'
+      })
+    )
+  );
+
+  @Effect({ dispatch: false })
+  createFromTemplate$ = this.actions$.pipe(
+    ofType<CreateFromTemplate>(TemplateActionTypes.CreateFromTemplate),
+    map(action => {
+      this.store
+        .select(getCurrentFolder)
         .pipe(
-          debounceTime(300),
-          flatMap(([node]) =>
-            this.createFileFromTemplateService
-              .createTemplateDialog(node)
-              .afterClosed()
-          ),
-          skipWhile(node => !node),
-          withLatestFrom(this.store.select(getCurrentFolder)),
-          switchMap(([template, parentNode]) => {
-            return this.copyNode(template, parentNode.id);
+          switchMap(folder => {
+            return this.copyNode(action.payload, folder.id);
           }),
-          catchError(error => {
-            return this.handleError(error);
-          })
+          take(1)
         )
         .subscribe((node: NodeEntry | null) => {
           if (node) {
-            this.content.reload.next(node);
+            this.store.dispatch(new CreateFromTemplateSuccess(node.entry));
           }
         });
     })
   );
 
-  private copyNode(
-    source: MinimalNode,
-    parentId: string
-  ): Observable<NodeEntry> {
+  @Effect({ dispatch: false })
+  createFromTemplateSuccess$ = this.actions$.pipe(
+    ofType<CreateFromTemplateSuccess>(
+      TemplateActionTypes.CreateFromTemplateSuccess
+    ),
+    map(payload => {
+      this.matDialog.closeAll();
+      this.content.reload.next(payload.node);
+    })
+  );
+
+  private openDialog(config: TemplateDialogConfig) {
+    this.nodeTemplateService
+      .selectTemplateDialog(config)
+      .pipe(debounceTime(300))
+      .subscribe(([node]) =>
+        this.nodeTemplateService.createTemplateDialog(node)
+      );
+  }
+
+  private copyNode(source: Node, parentId: string): Observable<NodeEntry> {
     return from(
       this.apiService.getInstance().nodes.copyNode(source.id, {
         targetParentId: parentId,
@@ -99,25 +128,36 @@ export class TemplateEffects {
       })
     ).pipe(
       switchMap(node =>
-        this.updateNode(node.entry.id, {
+        this.updateNode(node, {
           properties: {
             'cm:title': source.properties['cm:title'],
             'cm:description': source.properties['cm:description']
           }
         })
-      )
+      ),
+      catchError(error => {
+        return this.handleError(error);
+      })
     );
   }
 
   private updateNode(
-    id: string,
+    node: NodeEntry,
     update: NodeBodyUpdate
   ): Observable<NodeEntry> {
-    return from(this.apiService.getInstance().nodes.updateNode(id, update));
+    return from(
+      this.apiService.getInstance().nodes.updateNode(node.entry.id, update)
+    ).pipe(catchError(() => of(node)));
   }
 
   private handleError(error: Error): Observable<null> {
-    const { statusCode } = JSON.parse(error.message).error;
+    let statusCode: number;
+
+    try {
+      statusCode = JSON.parse(error.message).error.statusCode;
+    } catch (e) {
+      statusCode = null;
+    }
 
     if (statusCode !== 409) {
       this.store.dispatch(

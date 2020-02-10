@@ -2,7 +2,7 @@
  * @license
  * Alfresco Example Content Application
  *
- * Copyright (C) 2005 - 2019 Alfresco Software Limited
+ * Copyright (C) 2005 - 2020 Alfresco Software Limited
  *
  * This file is part of the Alfresco Example Content Application.
  * If the software was purchased under a paid Alfresco license, the terms of
@@ -172,7 +172,7 @@ describe('Search results - libraries', () => {
     await searchInput.searchFor(site1.name);
     await dataTable.waitForBody();
 
-    const expectedColumns = [ 'Thumbnail', 'Name', 'My Role', 'Visibility' ];
+    const expectedColumns = [ 'Name', 'My Role', 'Visibility' ];
     const actualColumns = await dataTable.getColumnHeadersText();
 
     expect(actualColumns).toEqual(expectedColumns);

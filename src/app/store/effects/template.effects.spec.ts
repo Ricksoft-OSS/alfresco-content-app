@@ -2,7 +2,7 @@
  * @license
  * Alfresco Example Content Application
  *
- * Copyright (C) 2005 - 2019 Alfresco Software Limited
+ * Copyright (C) 2005 - 2020 Alfresco Software Limited
  *
  * This file is part of the Alfresco Example Content Application.
  * If the software was purchased under a paid Alfresco license, the terms of
@@ -29,20 +29,27 @@ import { TemplateEffects } from './template.effects';
 import { EffectsModule } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import {
-  CreateFileFromTemplate,
+  CreateFromTemplate,
+  CreateFromTemplateSuccess,
+  FileFromTemplate,
+  FolderFromTemplate,
   SnackbarErrorAction
 } from '@alfresco/aca-shared/store';
-import { CreateFileFromTemplateService } from '../../services/create-file-from-template.service';
+import { NodeTemplateService } from '../../services/node-template.service';
 import { of } from 'rxjs';
 import { AlfrescoApiServiceMock, AlfrescoApiService } from '@alfresco/adf-core';
 import { ContentManagementService } from '../../services/content-management.service';
-import { Node } from '@alfresco/js-api';
+import { Node, NodeEntry } from '@alfresco/js-api';
+import { MatDialog } from '@angular/material/dialog';
 
 describe('TemplateEffects', () => {
   let store: Store<any>;
-  let createFileFromTemplateService: CreateFileFromTemplateService;
+  let nodeTemplateService: NodeTemplateService;
   let alfrescoApiService: AlfrescoApiService;
   let contentManagementService: ContentManagementService;
+  let copyNodeSpy;
+  let updateNodeSpy;
+  let matDialog: MatDialog;
   const node: Node = {
     name: 'node-name',
     id: 'node-id',
@@ -58,104 +65,167 @@ describe('TemplateEffects', () => {
       'cm:description': 'description'
     }
   };
+  const fileTemplateConfig = {
+    relativePath: 'Data Dictionary/Node Templates',
+    selectionType: 'file'
+  };
+
+  const folderTemplateConfig = {
+    relativePath: 'Data Dictionary/Space Templates',
+    selectionType: 'folder'
+  };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [AppTestingModule, EffectsModule.forRoot([TemplateEffects])],
       providers: [
-        CreateFileFromTemplateService,
-        { provide: AlfrescoApiService, useClass: AlfrescoApiServiceMock }
+        NodeTemplateService,
+        { provide: AlfrescoApiService, useClass: AlfrescoApiServiceMock },
+        {
+          provide: MatDialog,
+          useValue: {
+            closeAll: jasmine.createSpy('closeAll')
+          }
+        }
       ]
     });
 
     store = TestBed.get(Store);
-    createFileFromTemplateService = TestBed.get(CreateFileFromTemplateService);
+    nodeTemplateService = TestBed.get(NodeTemplateService);
     alfrescoApiService = TestBed.get(AlfrescoApiService);
     contentManagementService = TestBed.get(ContentManagementService);
+    matDialog = TestBed.get(MatDialog);
 
+    spyOn(store, 'dispatch').and.callThrough();
     spyOn(contentManagementService.reload, 'next');
     spyOn(store, 'select').and.returnValue(of({ id: 'parent-id' }));
-    spyOn(createFileFromTemplateService, 'openTemplatesDialog').and.returnValue(
+    spyOn(nodeTemplateService, 'selectTemplateDialog').and.returnValue(
       of([{ id: 'template-id' }])
     );
+
+    copyNodeSpy = spyOn(alfrescoApiService.getInstance().nodes, 'copyNode');
+    updateNodeSpy = spyOn(alfrescoApiService.getInstance().nodes, 'updateNode');
   });
 
-  it('should reload content on create file from template', fakeAsync(() => {
-    spyOn(alfrescoApiService.getInstance().nodes, 'copyNode').and.returnValue(
-      of({ entry: { id: 'node-id' } })
+  afterEach(() => {
+    copyNodeSpy.calls.reset();
+    updateNodeSpy.calls.reset();
+  });
+
+  it('should open dialog to select template files', fakeAsync(() => {
+    spyOn(nodeTemplateService, 'createTemplateDialog').and.returnValue({
+      afterClosed: () => of(node)
+    });
+
+    store.dispatch(new FileFromTemplate());
+    tick();
+
+    expect(nodeTemplateService.selectTemplateDialog).toHaveBeenCalledWith(
+      fileTemplateConfig
     );
-
-    spyOn(alfrescoApiService.getInstance().nodes, 'updateNode').and.returnValue(
-      of({})
-    );
-
-    spyOn(
-      createFileFromTemplateService,
-      'createTemplateDialog'
-    ).and.returnValue({ afterClosed: () => of(node) });
-
-    store.dispatch(new CreateFileFromTemplate());
-    tick(300);
-
-    expect(contentManagementService.reload.next).toHaveBeenCalled();
   }));
 
-  it('should raise error when copyNode api fails', fakeAsync(() => {
-    spyOn(store, 'dispatch').and.callThrough();
-    spyOn(alfrescoApiService.getInstance().nodes, 'copyNode').and.returnValue(
+  it('should open dialog to select template folders', fakeAsync(() => {
+    spyOn(nodeTemplateService, 'createTemplateDialog').and.returnValue({
+      afterClosed: () => of(node)
+    });
+
+    store.dispatch(new FolderFromTemplate());
+    tick();
+
+    expect(nodeTemplateService.selectTemplateDialog).toHaveBeenCalledWith(
+      folderTemplateConfig
+    );
+  }));
+
+  it('should create node from template successful', fakeAsync(() => {
+    copyNodeSpy.and.returnValue(
+      of({ entry: { id: 'node-id', properties: {} } })
+    );
+    updateNodeSpy.and.returnValue(of({ entry: node }));
+
+    store.dispatch(new CreateFromTemplate(node));
+    tick();
+
+    expect(store.dispatch['calls'].mostRecent().args[0]).toEqual(
+      new CreateFromTemplateSuccess(node)
+    );
+  }));
+
+  it('should raise generic error when copyNode api fails', fakeAsync(() => {
+    copyNodeSpy.and.returnValue(
       Promise.reject({
         message: `{ "error": { "statusCode": 404 } } `
       })
     );
 
-    spyOn(
-      createFileFromTemplateService,
-      'createTemplateDialog'
-    ).and.returnValue({ afterClosed: () => of(node) });
+    store.dispatch(new CreateFromTemplate(node));
+    tick();
 
-    store.dispatch(new CreateFileFromTemplate());
-    tick(300);
-
-    expect(contentManagementService.reload.next).not.toHaveBeenCalled();
+    expect(store.dispatch['calls'].mostRecent().args[0]).not.toEqual(
+      new CreateFromTemplateSuccess(node)
+    );
     expect(store.dispatch['calls'].argsFor(1)[0]).toEqual(
       new SnackbarErrorAction('APP.MESSAGES.ERRORS.GENERIC')
     );
   }));
 
-  it('should raise error when updateNode api fails', fakeAsync(() => {
-    spyOn(store, 'dispatch').and.callThrough();
-    spyOn(alfrescoApiService.getInstance().nodes, 'copyNode').and.returnValue(
-      of({ entry: { id: 'node-id' } })
+  it('should raise name conflict error when copyNode api returns 409', fakeAsync(() => {
+    copyNodeSpy.and.returnValue(
+      Promise.reject({
+        message: `{ "error": { "statusCode": 409 } } `
+      })
     );
 
-    spyOn(alfrescoApiService.getInstance().nodes, 'updateNode').and.returnValue(
+    store.dispatch(new CreateFromTemplate(node));
+    tick();
+
+    expect(store.dispatch['calls'].mostRecent().args[0]).not.toEqual(
+      new CreateFromTemplateSuccess(node)
+    );
+    expect(store.dispatch['calls'].argsFor(1)[0]).toEqual(
+      new SnackbarErrorAction('APP.MESSAGES.ERRORS.CONFLICT')
+    );
+  }));
+
+  it('should resolve error with current node value when updateNode api fails', fakeAsync(() => {
+    const test_node = {
+      entry: {
+        id: 'test-node-id',
+        properties: {
+          'cm:title': 'test-node-title',
+          'cm:description': 'test-node-description'
+        }
+      }
+    } as NodeEntry;
+    copyNodeSpy.and.returnValue(of(test_node));
+
+    updateNodeSpy.and.returnValue(
       Promise.reject({
         message: `{ "error": { "statusCode": 404 } } `
       })
     );
 
-    spyOn(
-      createFileFromTemplateService,
-      'createTemplateDialog'
-    ).and.returnValue({ afterClosed: () => of(node) });
+    store.dispatch(new CreateFromTemplate(test_node.entry));
+    tick();
 
-    store.dispatch(new CreateFileFromTemplate());
-    tick(300);
-
-    expect(contentManagementService.reload.next).not.toHaveBeenCalled();
-    expect(store.dispatch['calls'].argsFor(1)[0]).toEqual(
-      new SnackbarErrorAction('APP.MESSAGES.ERRORS.GENERIC')
+    expect(store.dispatch['calls'].mostRecent().args[0]).toEqual(
+      new CreateFromTemplateSuccess(test_node.entry)
     );
   }));
 
-  it('should update file from template with form data', () => {
-    spyOn(alfrescoApiService.getInstance().nodes, 'copyNode').and.returnValue(
-      of({ entry: { id: 'node-id' } })
-    );
+  it('should close dialog on create template success', fakeAsync(() => {
+    store.dispatch(new CreateFromTemplateSuccess({} as Node));
+    tick();
+    expect(matDialog.closeAll).toHaveBeenCalled();
+  }));
 
-    spyOn(
-      createFileFromTemplateService,
-      'createTemplateDialog'
-    ).and.returnValue({ afterClosed: () => of(node) });
-  });
+  it('should should reload content on create template success', fakeAsync(() => {
+    const test_node = { id: 'test-node-id' } as Node;
+    store.dispatch(new CreateFromTemplateSuccess(test_node));
+    tick();
+    expect(contentManagementService.reload.next).toHaveBeenCalledWith(
+      test_node
+    );
+  }));
 });

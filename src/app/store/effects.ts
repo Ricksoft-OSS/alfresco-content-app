@@ -2,7 +2,7 @@
  * @license
  * Alfresco Example Content Application
  *
- * Copyright (C) 2005 - 2019 Alfresco Software Limited
+ * Copyright (C) 2005 - 2020 Alfresco Software Limited
  *
  * This file is part of the Alfresco Example Content Application.
  * If the software was purchased under a paid Alfresco license, the terms of
@@ -33,3 +33,4 @@ export * from './effects/library.effects';
 export * from './effects/upload.effects';
 export * from './effects/upload.effects';
 export * from './effects/template.effects';
+export * from './effects/contextmenu.effects';

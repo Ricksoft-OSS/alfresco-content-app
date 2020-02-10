@@ -2,7 +2,7 @@
  * @license
  * Alfresco Example Content Application
  *
- * Copyright (C) 2005 - 2019 Alfresco Software Limited
+ * Copyright (C) 2005 - 2020 Alfresco Software Limited
  *
  * This file is part of the Alfresco Example Content Application.
  * If the software was purchased under a paid Alfresco license, the terms of
@@ -631,7 +631,7 @@ describe('Copy content', () => {
     expect(await dataTable.isItemPresent(fileName)).toBe(false, `${fileName} present in ${destination} folder`);
 
     await page.clickTrash();
-    expect(await dataTable.isEmptyList()).toBe(true, 'Trash is not empty');
+    expect(await dataTable.isEmpty()).toBe(true, 'Trash is not empty');
   }
 
   async function undoCopyFolder(folderName: string, location: string = '', destination: string, doBefore = null) {
@@ -654,7 +654,7 @@ describe('Copy content', () => {
     expect(await dataTable.isItemPresent(folderName)).toBe(false, `${folderName} present in ${destination} folder`);
 
     await page.clickTrash();
-    expect(await dataTable.isEmptyList()).toBe(true, 'Trash is not empty');
+    expect(await dataTable.isEmpty()).toBe(true, 'Trash is not empty');
   }
 
   async function undoCopyFileWithExistingName(fileName: string, location: string = '', destination: string, doBefore = null) {
@@ -681,7 +681,7 @@ describe('Copy content', () => {
     expect(await dataTable.isItemPresent(`${fileInFolder2}-1`)).toBe(false, `${fileInFolder2}-1 is present in ${destination} folder`);
 
     await page.clickTrash();
-    expect(await dataTable.isEmptyList()).toBe(true, 'Trash is not empty');
+    expect(await dataTable.isEmpty()).toBe(true, 'Trash is not empty');
   }
 
   async function undoCopyFolderWithExistingName(folderName: string, location: string = '', destination: string, doBefore = null) {
@@ -708,7 +708,7 @@ describe('Copy content', () => {
     expect(await dataTable.isItemPresent(file1InFolderExisting)).toBe(false, `${file1InFolderExisting} present in ${folderName} in ${destination} folder`);
 
     await page.clickTrash();
-    expect(await dataTable.isEmptyList()).toBe(true, 'Trash is not empty');
+    expect(await dataTable.isEmpty()).toBe(true, 'Trash is not empty');
   }
 
 });

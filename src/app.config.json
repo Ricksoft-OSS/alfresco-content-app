@@ -25,8 +25,9 @@
   },
   "viewer.maxRetries": 1,
   "sharedLinkDateTimePickerType": "date",
-  "headerColor": "#1565c0",
+  "headerColor": "#ffffff",
   "languagePicker": true,
+  "processServices": true,
   "pagination": {
     "size": 25,
     "supportedPageSizes": [25, 50, 100]

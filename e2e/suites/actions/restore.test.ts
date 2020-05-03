@@ -77,9 +77,9 @@ describe('Restore from Trash', () => {
       done();
     });
 
-    it('restore file - [C217177]', async () => {
+    it('[C217177] restore file', async () => {
       await dataTable.selectItem(file);
-      await toolbar.clickRestore();
+      await toolbar.restoreButton.click();
       const text = await page.getSnackBarMessage();
       expect(text).toContain(`${file} restored`);
       expect(text).toContain(`View`);
@@ -90,9 +90,9 @@ describe('Restore from Trash', () => {
       await apis.user.nodes.deleteNodeById(fileId, false);
     });
 
-    it('restore folder - [C280438]', async () => {
+    it('[C280438] restore folder', async () => {
       await dataTable.selectItem(folder);
-      await toolbar.clickRestore();
+      await toolbar.restoreButton.click();
       const text = await page.getSnackBarMessage();
       expect(text).toContain(`${folder} restored`);
       expect(text).toContain(`View`);
@@ -103,9 +103,9 @@ describe('Restore from Trash', () => {
       await apis.user.nodes.deleteNodeById(folderId, false);
     });
 
-    it('restore library - [C290104]', async () => {
+    it('[C290104] restore library', async () => {
       await dataTable.selectItem(site);
-      await toolbar.clickRestore();
+      await toolbar.restoreButton.click();
       const text = await page.getSnackBarMessage();
       expect(text).toContain(`${site} restored`);
       expect(text).toContain(`View`);
@@ -114,9 +114,9 @@ describe('Restore from Trash', () => {
       expect(await page.dataTable.isItemPresent(site)).toBe(true, `${site} not displayed in list`);
     });
 
-    it('restore multiple items - [C217182]', async () => {
+    it('[C217182] restore multiple items', async () => {
       await dataTable.selectMultipleItems([file, folder]);
-      await toolbar.clickRestore();
+      await toolbar.restoreButton.click();
       const text = await page.getSnackBarMessage();
       expect(text).toContain(`Restore successful`);
       expect(text).not.toContain(`View`);
@@ -129,9 +129,9 @@ describe('Restore from Trash', () => {
       await apis.user.nodes.deleteNodesById([fileId, folderId], false);
     });
 
-    it('View from notification - [C217181]', async () => {
+    it('[C217181] View from notification', async () => {
       await dataTable.selectItem(file);
-      await toolbar.clickRestore();
+      await toolbar.restoreButton.click();
       await page.clickSnackBarAction();
       await page.dataTable.waitForHeader();
       expect(await page.sidenav.isActive('Personal Files')).toBe(true, 'Personal Files sidebar link not active');
@@ -179,17 +179,17 @@ describe('Restore from Trash', () => {
       done();
     });
 
-    it('Restore a file when another file with same name exists on the restore location - [C217178]', async () => {
+    it('[C217178] Restore a file when another file with same name exists on the restore location', async () => {
       await page.clickTrashAndWait();
       await dataTable.selectItem(file1);
-      await toolbar.clickRestore();
+      await toolbar.restoreButton.click();
       expect(await page.getSnackBarMessage()).toEqual(`Can't restore, ${file1} already exists`);
     });
 
-    it('Restore a file when original location no longer exists - [C217179]', async () => {
+    it('[C217179] Restore a file when original location no longer exists', async () => {
       await page.clickTrashAndWait();
       await dataTable.selectItem(file2);
-      await toolbar.clickRestore();
+      await toolbar.restoreButton.click();
       expect(await page.getSnackBarMessage()).toEqual(`Can't restore ${file2}, the original location no longer exists`);
     });
   });
@@ -248,15 +248,15 @@ describe('Restore from Trash', () => {
       done();
     });
 
-    it('one failure - [C217183]', async () => {
+    it('[C217183] one failure', async () => {
       await dataTable.selectMultipleItems([file1, file2]);
-      await toolbar.clickRestore();
+      await toolbar.restoreButton.click();
       expect(await page.getSnackBarMessage()).toEqual(`Can't restore ${file1}, the original location no longer exists`);
     });
 
-    it('multiple failures - [C217184]', async () => {
+    it('[C217184] multiple failures', async () => {
       await dataTable.selectMultipleItems([file3, file4, file5]);
-      await toolbar.clickRestore();
+      await toolbar.restoreButton.click();
       expect(await page.getSnackBarMessage()).toEqual('2 items not restored because of issues with the restore location');
     });
   });

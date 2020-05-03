@@ -77,50 +77,50 @@ describe('Permanently delete from Trash', () => {
         done();
     });
 
-    it('delete a file - [C217091]', async () => {
+    it('[C217091] delete a file', async () => {
         await dataTable.selectItem(file1);
-        await toolbar.clickPermanentlyDelete();
+        await toolbar.permanentlyDeleteButton.click();
         await page.waitForDialog();
-        await confirmDialog.clickDelete();
+        await confirmDialog.deleteButton.click();
 
         expect(await page.getSnackBarMessage()).toEqual(`${file1} deleted`);
         expect(await dataTable.isItemPresent(file1)).toBe(false, 'Item was not deleted');
     });
 
-    it('delete a folder - [C280416]', async () => {
+    it('[C280416] delete a folder', async () => {
         await dataTable.selectItem(folder1);
-        await toolbar.clickPermanentlyDelete();
+        await toolbar.permanentlyDeleteButton.click();
         await page.waitForDialog();
-        await confirmDialog.clickDelete();
+        await confirmDialog.deleteButton.click();
 
         expect(await page.getSnackBarMessage()).toEqual(`${folder1} deleted`);
         expect(await dataTable.isItemPresent(folder1)).toBe(false, 'Item was not deleted');
     });
 
-    it('delete a library - [C290103]', async () => {
+    it('[C290103] delete a library', async () => {
         await dataTable.selectItem(site);
-        await toolbar.clickPermanentlyDelete();
+        await toolbar.permanentlyDeleteButton.click();
         await page.waitForDialog();
-        await confirmDialog.clickDelete();
+        await confirmDialog.deleteButton.click();
 
         expect(await page.getSnackBarMessage()).toEqual(`${site} deleted`);
         expect(await dataTable.isItemPresent(site)).toBe(false, `${site} was not deleted`);
     });
 
-    it('delete multiple items - [C280417]', async () => {
+    it('[C280417] delete multiple items', async () => {
         await dataTable.selectMultipleItems([ file2, folder2 ]);
-        await toolbar.clickPermanentlyDelete();
+        await toolbar.permanentlyDeleteButton.click();
         await page.waitForDialog();
-        await confirmDialog.clickDelete();
+        await confirmDialog.deleteButton.click();
 
         expect(await page.getSnackBarMessage()).toEqual(`2 items deleted`);
         expect(await dataTable.isItemPresent(file2)).toBe(false, 'Item was not deleted');
         expect(await dataTable.isItemPresent(folder2)).toBe(false, 'Item was not deleted');
     });
 
-    it('Confirmation dialog UI - [C269113]', async () => {
+    it('[C269113] Confirmation dialog UI', async () => {
         await dataTable.selectItem(file3);
-        await toolbar.clickPermanentlyDelete();
+        await toolbar.permanentlyDeleteButton.click();
         await page.waitForDialog();
 
         expect(await confirmDialog.isDialogOpen()).toBe(true, 'Confirm delete dialog not open');
@@ -133,13 +133,13 @@ describe('Permanently delete from Trash', () => {
         await dataTable.clearSelection();
     });
 
-    it('Keep action cancels the deletion - [C269115]', async () => {
+    it('[C269115] Keep action cancels the deletion', async () => {
         await dataTable.selectItem(file3);
-        await toolbar.clickPermanentlyDelete();
+        await toolbar.permanentlyDeleteButton.click();
         await page.waitForDialog();
 
         expect(await confirmDialog.isKeepEnabled()).toBe(true, 'KEEP button is not enabled');
-        await confirmDialog.clickKeep();
+        await confirmDialog.keepButton.click();
         expect(await dataTable.isItemPresent(file3)).toBe(true, 'Item was deleted');
     });
 });

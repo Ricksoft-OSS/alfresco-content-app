@@ -24,6 +24,7 @@
  */
 
 import { RepoApi } from '../repo-api';
+import { Logger } from '@alfresco/adf-testing';
 import { SiteBody, SiteMemberRoleBody, SiteMemberBody, SiteEntry, SiteMembershipRequestEntry, SitesApi as AdfSiteApi, SiteMemberEntry } from '@alfresco/js-api';
 import { SITE_VISIBILITY, SITE_ROLES } from '../../../../configs';
 import { Utils } from '../../../../utilities/utils';
@@ -96,12 +97,12 @@ export class SitesApi extends RepoApi {
   }
 
   async createSite(title: string, visibility?: string, description?: string, siteId?: string): Promise<SiteEntry|null> {
-    const site = <SiteBody>{
+    const site = {
         title,
         visibility: visibility || SITE_VISIBILITY.PUBLIC,
         description: description,
         id: siteId || title
-    };
+    } as SiteBody;
 
     try {
       await this.apiAuth();
@@ -124,7 +125,7 @@ export class SitesApi extends RepoApi {
     try {
       return titles.reduce(async (previous: any, current: any) => {
         await previous;
-        return await this.createSite(current, visibility);
+        return this.createSite(current, visibility);
       }, Promise.resolve());
     } catch (error) {
       this.handleError(`${this.constructor.name} ${this.createSites.name}`, error);
@@ -148,7 +149,7 @@ export class SitesApi extends RepoApi {
     try {
       return siteIds.reduce(async (previous, current) => {
         await previous;
-        return await this.deleteSite(current, permanent);
+        return this.deleteSite(current, permanent);
       }, Promise.resolve());
     } catch (error) {
       this.handleError(`${this.constructor.name} ${this.deleteSites.name}`, error);
@@ -161,7 +162,7 @@ export class SitesApi extends RepoApi {
 
       return await siteIds.reduce(async (previous, current) => {
         await previous;
-        return await this.deleteSite(current, permanent);
+        return this.deleteSite(current, permanent);
       }, Promise.resolve());
     } catch (error) {
       this.handleError(`${this.constructor.name} ${this.deleteAllUserSites.name}`, error);
@@ -169,9 +170,9 @@ export class SitesApi extends RepoApi {
   }
 
   async updateSiteMember(siteId: string, userId: string, role: string) {
-    const siteRole = <SiteMemberRoleBody>{
+    const siteRole = {
         role: role
-    };
+    } as SiteMemberRoleBody;
 
     try {
       await this.apiAuth();
@@ -183,10 +184,10 @@ export class SitesApi extends RepoApi {
   }
 
   async addSiteMember(siteId: string, userId: string, role: string) {
-    const memberBody = <SiteMemberBody>{
+    const memberBody = {
         id: userId,
         role: role
-    };
+    } as SiteMemberBody;
 
     try {
       await this.apiAuth();
@@ -260,8 +261,8 @@ export class SitesApi extends RepoApi {
 
       return await Utils.retryCall(sites);
     } catch (error) {
-      console.log(`${this.constructor.name} ${this.waitForApi.name} catch: `);
-      console.log(`\tExpected: ${data.expect} items, but found ${error}`);
+      Logger.error(`${this.constructor.name} ${this.waitForApi.name} catch: `);
+      Logger.error(`\tExpected: ${data.expect} items, but found ${error}`);
     }
   }
 }

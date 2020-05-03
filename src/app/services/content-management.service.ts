@@ -128,7 +128,7 @@ export class ContentManagementService {
 
   managePermissions(node: MinimalNodeEntity): void {
     if (node && node.entry) {
-      const { nodeId, id } = <any>node.entry;
+      const { nodeId, id } = node.entry as any;
       const siteId = node.entry['guid'];
       const targetId = siteId || nodeId || id;
 
@@ -149,7 +149,7 @@ export class ContentManagementService {
   manageVersions(node: any) {
     if (node && node.entry) {
       // shared and favorite
-      const id = node.entry.nodeId || (<any>node).entry.guid;
+      const id = node.entry.nodeId || (node as any).entry.guid;
 
       if (id) {
         this.contentApi.getNodeInfo(id).subscribe(entry => {
@@ -185,7 +185,7 @@ export class ContentManagementService {
   shareNode(node: any): void {
     if (node && node.entry) {
       // shared and favorite
-      const id = node.entry.nodeId || (<any>node).entry.guid;
+      const id = node.entry.nodeId || (node as any).entry.guid;
 
       if (id) {
         this.contentApi.getNodeInfo(id).subscribe(entry => {
@@ -389,7 +389,7 @@ export class ContentManagementService {
       if (result === true) {
         const nodesToDelete: NodeInfo[] = nodes.map(node => {
           const { name } = node.entry;
-          const id = (<any>node).entry.nodeId || node.entry.id;
+          const id = (node as any).entry.nodeId || node.entry.id;
 
           return {
             id,
@@ -1164,13 +1164,13 @@ export class ContentManagementService {
     return i18nMessageString;
   }
 
-  getNodeInfo() {
+  getNodeInfo(): Observable<MinimalNodeEntryEntity> {
     return this.store.select(getAppSelection).pipe(
       take(1),
       flatMap(({ file }) => {
-        const id = (<any>file).entry.nodeId || (<any>file).entry.guid;
+        const id = (file as any).entry.nodeId || (file as any).entry.guid;
         if (!id) {
-          return of(<any>file.entry);
+          return of(file.entry);
         } else {
           return this.contentApi.getNodeInfo(id);
         }
@@ -1178,8 +1178,8 @@ export class ContentManagementService {
     );
   }
 
-  unlockNode(node: NodeEntry) {
-    this.contentApi.unlockNode(node.entry.id).catch(() => {
+  unlockNode(node: NodeEntry): Promise<void | NodeEntry> {
+    return this.contentApi.unlockNode(node.entry.id).catch(() => {
       this.store.dispatch(
         new SnackbarErrorAction('APP.MESSAGES.ERRORS.UNLOCK_NODE', {
           fileName: node.entry.name

@@ -45,8 +45,8 @@ import {
   MinimalNodeEntity,
   MinimalNodeEntryEntity,
   SitePaging,
-  Site,
-  NodeChildAssociationPaging
+  NodeChildAssociationPaging,
+  NodeChildAssociationEntry
 } from '@alfresco/js-api';
 import { ContentApiService } from '@alfresco/aca-shared';
 import { catchError, map, mergeMap } from 'rxjs/operators';
@@ -231,7 +231,7 @@ export class NodeActionsService {
       list: {
         entries: [
           {
-            entry: <Site>{
+            entry: {
               guid: '-my-',
               title: this.translation.instant(
                 'APP.BROWSE.PERSONAL.SIDENAV_LINK.LABEL'
@@ -239,7 +239,7 @@ export class NodeActionsService {
             }
           },
           {
-            entry: <Site>{
+            entry: {
               guid: '-mysites-',
               title: this.translation.instant(
                 'APP.BROWSE.LIBRARIES.SIDENAV_LINK.LABEL'
@@ -267,7 +267,7 @@ export class NodeActionsService {
       excludeSiteContent: ContentNodeDialogService.nonDocumentSiteContent
     };
 
-    this.dialog.open(ContentNodeSelectorComponent, <any>{
+    this.dialog.open(ContentNodeSelectorComponent, {
       data,
       panelClass: 'adf-content-node-selector-dialog',
       width: '630px'
@@ -344,10 +344,10 @@ export class NodeActionsService {
         }
       }
     } else if (node === null && this.isSitesDestinationAvailable) {
-      node = <any>{
+      node = {
         name: this.translation.instant('APP.BROWSE.LIBRARIES.TITLE'),
         path: { elements: [] }
-      };
+      } as any;
     }
 
     return node;
@@ -625,11 +625,14 @@ export class NodeActionsService {
     );
   }
 
-  getChildByName(parentId: string, name: string) {
+  getChildByName(
+    parentId: string,
+    name: string
+  ): Subject<NodeChildAssociationEntry> {
     const matchedNodes = new Subject<any>();
 
     this.getNodeChildren(parentId).subscribe(
-      (childrenNodes: any) => {
+      (childrenNodes: NodeChildAssociationPaging) => {
         const result = childrenNodes.list.entries.find(
           node => node.entry.name === name
         );

@@ -5,7 +5,9 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 eval libs=( "@alfresco/adf-core"
     "@alfresco/adf-content-services"
     "@alfresco/adf-extensions"
+    "@alfresco/adf-testing"
     "@alfresco/js-api"
+    "@alfresco/adf-cli"
 )
 
 cd ${DIR}/..

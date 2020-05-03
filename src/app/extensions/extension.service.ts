@@ -55,7 +55,11 @@ import {
   DocumentListPresetRef,
   IconRef
 } from '@alfresco/adf-extensions';
-import { AppConfigService, AuthenticationService } from '@alfresco/adf-core';
+import {
+  AppConfigService,
+  AuthenticationService,
+  LogService
+} from '@alfresco/adf-core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { RepositoryInfo, NodeEntry } from '@alfresco/js-api';
 import { ViewerRules } from './viewer.rules';
@@ -123,7 +127,8 @@ export class AppExtensionService implements RuleContext {
     public permissions: NodePermissionService,
     protected appConfig: AppConfigService,
     protected matIconRegistry: MatIconRegistry,
-    protected sanitizer: DomSanitizer
+    protected sanitizer: DomSanitizer,
+    protected logger: LogService
   ) {
     this.references$ = this._references.asObservable();
 
@@ -146,7 +151,7 @@ export class AppExtensionService implements RuleContext {
 
   setup(config: ExtensionConfig) {
     if (!config) {
-      console.error('Extension configuration not found');
+      this.logger.error('Extension configuration not found');
       return;
     }
 
@@ -215,14 +220,14 @@ export class AppExtensionService implements RuleContext {
     );
 
     if (config.features && config.features.viewer) {
-      this.viewerRules = <ViewerRules>(config.features.viewer['rules'] || {});
+      this.viewerRules = (config.features.viewer['rules'] as ViewerRules) || {};
     }
 
     this.registerIcons(config);
 
     const references = (config.$references || [])
       .filter(entry => typeof entry === 'object')
-      .map(entry => <ExtensionRef>entry);
+      .map(entry => entry as ExtensionRef);
     this._references.next(references);
   }
 
@@ -262,7 +267,7 @@ export class AppExtensionService implements RuleContext {
       .filter(entry => !entry.disabled);
   }
 
-  getApplicationNavigation(elements) {
+  getApplicationNavigation(elements): Array<NavBarGroupRef> {
     return elements
       .filter(group => this.filterVisible(group))
       .map(group => {
@@ -347,7 +352,7 @@ export class AppExtensionService implements RuleContext {
     try {
       this.appConfig.config['content-metadata'] = { presets };
     } catch (error) {
-      console.error(
+      this.logger.error(
         error,
         '- could not change content-metadata from app.config -'
       );
@@ -378,7 +383,7 @@ export class AppExtensionService implements RuleContext {
   }
 
   getSidebarTabs(): Array<SidebarTabRef> {
-    return this.sidebar.filter(action => this.filterVisible(<any>action));
+    return this.sidebar.filter(action => this.filterVisible(action));
   }
 
   getComponentById(id: string): Type<{}> {
@@ -507,6 +512,10 @@ export class AppExtensionService implements RuleContext {
       .sort(sortByOrder);
   }
 
+  getSettingsGroups(): Array<SettingsGroupRef> {
+    return this.settingGroups.filter(group => this.filterVisible(group));
+  }
+
   copyAction(action: ContentActionRef): ContentActionRef {
     return {
       ...action,
@@ -514,7 +523,9 @@ export class AppExtensionService implements RuleContext {
     };
   }
 
-  filterVisible(action: ContentActionRef): boolean {
+  filterVisible(
+    action: ContentActionRef | SettingsGroupRef | SidebarTabRef
+  ): boolean {
     if (action && action.rules && action.rules.visible) {
       return this.extensions.evaluateRule(action.rules.visible, this);
     }

@@ -41,6 +41,7 @@ import { DocumentListComponent } from '@alfresco/adf-content-services';
 import { RecentFilesComponent } from './recent-files.component';
 import { AppTestingModule } from '../../testing/app-testing.module';
 import { Router } from '@angular/router';
+import { PersonEntry } from '@alfresco/js-api';
 
 describe('RecentFilesComponent', () => {
   let fixture: ComponentFixture<RecentFilesComponent>;
@@ -90,7 +91,7 @@ describe('RecentFilesComponent', () => {
     spyOn(alfrescoApi.peopleApi, 'getPerson').and.returnValue(
       Promise.resolve({
         entry: { id: 'personId' }
-      })
+      } as PersonEntry)
     );
 
     spyOn(alfrescoApi.searchApi, 'search').and.returnValue(
@@ -119,7 +120,7 @@ describe('RecentFilesComponent', () => {
   }));
 
   it('should call showPreview method', () => {
-    const node = <any>{ entry: {} };
+    const node: any = { entry: {} };
     spyOn(component, 'showPreview');
     fixture.detectChanges();
 

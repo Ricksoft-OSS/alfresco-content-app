@@ -84,8 +84,7 @@ exports.config = {
       './e2e/suites/actions/download.test.ts'
     ],
     manageContent: [
-      './e2e/suites/actions/copy.test.ts',
-      './e2e/suites/actions/move.test.ts',
+      './e2e/suites/actions/copy-move/*.test.ts',
       './e2e/suites/actions/library-actions.test.ts',
       './e2e/suites/actions/edit-folder.test.ts',
       './e2e/suites/actions/edit-offline.test.ts'
@@ -155,7 +154,7 @@ exports.config = {
 
   onPrepare() {
     require('ts-node').register({
-      project: 'e2e/tsconfig.e2e.json'
+      project: `${projectRoot}/e2e/tsconfig.e2e.json`
     });
 
     browser

@@ -106,9 +106,9 @@ describe('Comments', () => {
       done();
     });
 
-    it('Comments tab default fields - [C299173]', async () => {
+    it('[C299173] Comments tab default fields', async () => {
       await dataTable.selectItem(file1);
-      await page.toolbar.clickViewDetails();
+      await page.toolbar.viewDetailsButton.click();
       await infoDrawer.waitForInfoDrawerToOpen();
       await infoDrawer.clickCommentsTab();
 
@@ -118,9 +118,9 @@ describe('Comments', () => {
       expect(await commentsTab.isAddCommentButtonEnabled()).toBe(false, 'Add comment button not disabled');
     });
 
-    it('Comments are displayed ordered by created date in descending order - [C280583]', async () => {
+    it('[C280583] Comments are displayed ordered by created date in descending order', async () => {
       await dataTable.selectItem(fileWith2Comments);
-      await page.toolbar.clickViewDetails();
+      await page.toolbar.viewDetailsButton.click();
       await infoDrawer.waitForInfoDrawerToOpen();
       await infoDrawer.clickCommentsTab();
 
@@ -128,18 +128,18 @@ describe('Comments', () => {
       expect(await commentsTab.getNthCommentId(2)).toContain(comment1File2Entry.id);
     });
 
-    it('Total number of comments is displayed - [C280585]', async () => {
+    it('[C280585] Total number of comments is displayed', async () => {
       await dataTable.selectItem(fileWith2Comments);
-      await page.toolbar.clickViewDetails();
+      await page.toolbar.viewDetailsButton.click();
       await infoDrawer.waitForInfoDrawerToOpen();
       await infoDrawer.clickCommentsTab();
 
       expect(await commentsTab.getCommentsTabHeaderText()).toBe('Comments (2)');
     });
 
-    it('Add button is enabled when typing in the comment field - [C280589]', async () => {
+    it('[C280589] Add button is enabled when typing in the comment field', async () => {
       await dataTable.selectItem(file1);
-      await page.toolbar.clickViewDetails();
+      await page.toolbar.viewDetailsButton.click();
       await infoDrawer.waitForInfoDrawerToOpen();
       await infoDrawer.clickCommentsTab();
 
@@ -149,11 +149,11 @@ describe('Comments', () => {
       expect(await commentsTab.isAddCommentButtonEnabled()).toBe(true, 'Add comment button not enabled');
     });
 
-    it('Add a comment on a file - [C280590]', async () => {
+    it('[C280590] Add a comment on a file', async () => {
       const myComment = 'my comment';
 
       await dataTable.selectItem(file2Personal);
-      await page.toolbar.clickViewDetails();
+      await page.toolbar.viewDetailsButton.click();
       await infoDrawer.waitForInfoDrawerToOpen();
       await infoDrawer.clickCommentsTab();
       await commentsTab.typeComment(myComment);
@@ -164,11 +164,11 @@ describe('Comments', () => {
       expect(await commentsTab.getCommentText()).toBe(myComment, 'Incorrect comment text');
     });
 
-    it('Add a comment on a folder - [C299208]', async () => {
+    it('[C299208] Add a comment on a folder', async () => {
       const myComment = 'my comment';
 
       await dataTable.selectItem(folder1);
-      await page.toolbar.clickViewDetails();
+      await page.toolbar.viewDetailsButton.click();
       await infoDrawer.waitForInfoDrawerToOpen();
       await infoDrawer.clickCommentsTab();
       await commentsTab.typeComment(myComment);
@@ -179,9 +179,9 @@ describe('Comments', () => {
       expect(await commentsTab.getCommentText()).toBe(myComment, 'Incorrect comment text');
     });
 
-    it('Escape key clears the text when focus is on the textarea - [C280591]', async () => {
+    it('[C280591] Escape key clears the text when focus is on the textarea', async () => {
       await dataTable.selectItem(file2Personal);
-      await page.toolbar.clickViewDetails();
+      await page.toolbar.viewDetailsButton.click();
       await infoDrawer.waitForInfoDrawerToOpen();
       await infoDrawer.clickCommentsTab();
       await commentsTab.typeComment('myComment');
@@ -205,9 +205,9 @@ describe('Comments', () => {
       done();
     });
 
-    it('Comments are displayed ordered by created date in descending order - [C299197]', async () => {
+    it('[C299197] Comments are displayed ordered by created date in descending order', async () => {
       await dataTable.selectItem(fileWith2Comments);
-      await page.toolbar.clickViewDetails();
+      await page.toolbar.viewDetailsButton.click();
       await infoDrawer.waitForInfoDrawerToOpen();
       await infoDrawer.clickCommentsTab();
 
@@ -215,20 +215,20 @@ describe('Comments', () => {
       expect(await commentsTab.getNthCommentId(2)).toContain(comment1File2Entry.id);
     });
 
-    it('Total number of comments is displayed - [C299198]', async () => {
+    it('[C299198] Total number of comments is displayed', async () => {
       await dataTable.selectItem(fileWith2Comments);
-      await page.toolbar.clickViewDetails();
+      await page.toolbar.viewDetailsButton.click();
       await infoDrawer.waitForInfoDrawerToOpen();
       await infoDrawer.clickCommentsTab();
 
       expect(await commentsTab.getCommentsTabHeaderText()).toBe('Comments (2)');
     });
 
-    it('Add a comment on a file - [C299199]', async () => {
+    it('[C299199] Add a comment on a file', async () => {
       const myComment = 'my comment';
 
       await dataTable.selectItem(file2Favorites);
-      await page.toolbar.clickViewDetails();
+      await page.toolbar.viewDetailsButton.click();
       await infoDrawer.waitForInfoDrawerToOpen();
       await infoDrawer.clickCommentsTab();
       await commentsTab.typeComment(myComment);
@@ -239,11 +239,11 @@ describe('Comments', () => {
       expect(await commentsTab.getCommentText()).toBe(myComment, 'Incorrect comment text');
     });
 
-    it('Add a comment on a folder - [C299209]', async () => {
+    it('[C299209] Add a comment on a folder', async () => {
       const myComment = 'my comment';
 
       await dataTable.selectItem(folder2);
-      await page.toolbar.clickViewDetails();
+      await page.toolbar.viewDetailsButton.click();
       await infoDrawer.waitForInfoDrawerToOpen();
       await infoDrawer.clickCommentsTab();
       await commentsTab.typeComment(myComment);
@@ -266,9 +266,9 @@ describe('Comments', () => {
       done();
     });
 
-    it('Comments are displayed ordered by created date in descending order - [C299189]', async () => {
+    it('[C299189] Comments are displayed ordered by created date in descending order', async () => {
       await dataTable.selectItem(fileWith2Comments);
-      await page.toolbar.clickViewDetails();
+      await page.toolbar.viewDetailsButton.click();
       await infoDrawer.waitForInfoDrawerToOpen();
       await infoDrawer.clickCommentsTab();
 
@@ -276,20 +276,20 @@ describe('Comments', () => {
       expect(await commentsTab.getNthCommentId(2)).toContain(comment1File2Entry.id);
     });
 
-    it('Total number of comments is displayed - [C299190]', async () => {
+    it('[C299190] Total number of comments is displayed', async () => {
       await dataTable.selectItem(fileWith2Comments);
-      await page.toolbar.clickViewDetails();
+      await page.toolbar.viewDetailsButton.click();
       await infoDrawer.waitForInfoDrawerToOpen();
       await infoDrawer.clickCommentsTab();
 
       expect(await commentsTab.getCommentsTabHeaderText()).toBe('Comments (2)');
     });
 
-    it('Add a comment on a file - [C299191]', async () => {
+    it('[C299191] Add a comment on a file', async () => {
       const myComment = 'my comment';
 
       await dataTable.selectItem(file2Shared);
-      await page.toolbar.clickViewDetails();
+      await page.toolbar.viewDetailsButton.click();
       await infoDrawer.waitForInfoDrawerToOpen();
       await infoDrawer.clickCommentsTab();
       await commentsTab.typeComment(myComment);
@@ -312,9 +312,9 @@ describe('Comments', () => {
       done();
     });
 
-    it('Comments are displayed ordered by created date in descending order - [C299193]', async () => {
+    it('[C299193] Comments are displayed ordered by created date in descending order', async () => {
       await dataTable.selectItem(fileWith2Comments);
-      await page.toolbar.clickViewDetails();
+      await page.toolbar.viewDetailsButton.click();
       await infoDrawer.waitForInfoDrawerToOpen();
       await infoDrawer.clickCommentsTab();
 
@@ -322,20 +322,20 @@ describe('Comments', () => {
       expect(await commentsTab.getNthCommentId(2)).toContain(comment1File2Entry.id);
     });
 
-    it('Total number of comments is displayed - [C299194]', async () => {
+    it('[C299194] Total number of comments is displayed', async () => {
       await dataTable.selectItem(fileWith2Comments);
-      await page.toolbar.clickViewDetails();
+      await page.toolbar.viewDetailsButton.click();
       await infoDrawer.waitForInfoDrawerToOpen();
       await infoDrawer.clickCommentsTab();
 
       expect(await commentsTab.getCommentsTabHeaderText()).toBe('Comments (2)');
     });
 
-    it('Add a comment on a file - [C299195]', async () => {
+    it('[C299195] Add a comment on a file', async () => {
       const myComment = 'my comment';
 
       await dataTable.selectItem(file2Recent);
-      await page.toolbar.clickViewDetails();
+      await page.toolbar.viewDetailsButton.click();
       await infoDrawer.waitForInfoDrawerToOpen();
       await infoDrawer.clickCommentsTab();
       await commentsTab.typeComment(myComment);
@@ -358,12 +358,12 @@ describe('Comments', () => {
       done();
     });
 
-    it('File from Personal files - [C280582]', async () => {
+    it('[C280582] File from Personal files', async () => {
       await page.clickPersonalFilesAndWait();
       await dataTable.doubleClickOnRowByName(parent);
 
       await dataTable.selectItem(fileWith1Comment);
-      await page.toolbar.clickViewDetails();
+      await page.toolbar.viewDetailsButton.click();
       await infoDrawer.waitForInfoDrawerToOpen();
       await infoDrawer.clickCommentsTab();
 
@@ -378,11 +378,11 @@ describe('Comments', () => {
       expect(await commentsTab.isCommentUserAvatarDisplayed(commentFile1Entry.id)).toBe(true, 'User avatar not displayed');
     });
 
-    it('File from Favorites - [C299196]', async () => {
+    it('[C299196] File from Favorites', async () => {
       await page.clickFavoritesAndWait();
 
       await dataTable.selectItem(fileWith1Comment);
-      await page.toolbar.clickViewDetails();
+      await page.toolbar.viewDetailsButton.click();
       await infoDrawer.waitForInfoDrawerToOpen();
       await infoDrawer.clickCommentsTab();
 
@@ -397,11 +397,11 @@ describe('Comments', () => {
       expect(await commentsTab.isCommentUserAvatarDisplayed(commentFile1Entry.id)).toBe(true, 'User avatar not displayed');
     });
 
-    it('File from Shared Files - [C299188]', async () => {
+    it('[C299188] File from Shared Files', async () => {
       await page.clickSharedFilesAndWait();
 
       await dataTable.selectItem(fileWith1Comment);
-      await page.toolbar.clickViewDetails();
+      await page.toolbar.viewDetailsButton.click();
       await infoDrawer.waitForInfoDrawerToOpen();
       await infoDrawer.clickCommentsTab();
 
@@ -416,11 +416,11 @@ describe('Comments', () => {
       expect(await commentsTab.isCommentUserAvatarDisplayed(commentFile1Entry.id)).toBe(true, 'User avatar not displayed');
     });
 
-    it('File from Recent Files - [C299192]', async () => {
+    it('[C299192] File from Recent Files', async () => {
       await page.clickRecentFilesAndWait();
 
       await dataTable.selectItem(fileWith1Comment);
-      await page.toolbar.clickViewDetails();
+      await page.toolbar.viewDetailsButton.click();
       await infoDrawer.waitForInfoDrawerToOpen();
       await infoDrawer.clickCommentsTab();
 

@@ -24,6 +24,7 @@
  */
 
 import { browser } from 'protractor';
+import { Logger } from '@alfresco/adf-testing';
 import { BrowsingPage, LoginPage } from '../../pages/pages';
 import { CreateOrEditFolderDialog } from '../../components/dialog/create-edit-folder-dialog';
 import { RepoClient } from '../../utilities/repo-client/repo-client';
@@ -49,7 +50,7 @@ describe('General', () => {
       done();
     });
 
-    it('should close opened dialogs - [C286473]', async () => {
+    it('[C286473] should close opened dialogs', async () => {
       await loginPage.loginWithAdmin();
 
       await page.sidenav.openCreateFolderDialog();
@@ -58,7 +59,7 @@ describe('General', () => {
 
       await authApi.logout();
 
-      await createDialog.clickCreate();
+      await createDialog.createButton.click();
 
       expect(await page.getSnackBarMessage()).toEqual('The action was unsuccessful. Try again or contact your IT Team.');
 
@@ -67,7 +68,7 @@ describe('General', () => {
       try {
         await createDialog.waitForDialogToClose();
       } catch (error) {
-        console.log('err: ', error);
+        Logger.error('err: ', error);
       }
       expect(await createDialog.isDialogOpen()).not.toBe(true, 'dialog is present');
     });

@@ -65,7 +65,7 @@ export class SettingsComponent implements OnInit {
   headerColor$: Observable<string>;
 
   get settingGroups(): SettingsGroupRef[] {
-    return this.appExtensions.settingGroups;
+    return this.appExtensions.getSettingsGroups();
   }
 
   constructor(
@@ -122,7 +122,7 @@ export class SettingsComponent implements OnInit {
       null
     );
 
-    this.form.reset(<RepositoryConfig>{
+    this.form.reset({
       ecmHost:
         this.storage.getItem('ecmHost') ||
         this.appConfig.get<string>('ecmHost'),
@@ -136,7 +136,9 @@ export class SettingsComponent implements OnInit {
   }
 
   setParamValue(param: SettingsParameterRef, value: any) {
-    if (param.value !== value) {
+    const currentValue = this.getStringParamValue(param);
+
+    if (currentValue !== value.toString()) {
       param.value = value;
       this.saveToStorage(param);
     }

@@ -25,7 +25,7 @@
 
 import { LoginPage, BrowsingPage } from '../../pages/pages';
 import { CreateOrEditFolderDialog } from '../../components/dialog/create-edit-folder-dialog';
-import { Utils } from '../../utilities/utils';
+import { Utils, clearTextWithBackspace } from '../../utilities/utils';
 import { RepoClient } from '../../utilities/repo-client/repo-client';
 
 describe('Create folder', () => {
@@ -85,25 +85,25 @@ describe('Create folder', () => {
       done();
     });
 
-    it('creates new folder with name - [C216341]', async () => {
+    it('[C216341] creates new folder with name', async () => {
       await page.dataTable.doubleClickOnRowByName(parent);
       await page.sidenav.openCreateFolderDialog();
       await createDialog.waitForDialogToOpen();
       await createDialog.enterName(folderName1);
-      await createDialog.clickCreate();
+      await createDialog.createButton.click();
       await createDialog.waitForDialogToClose();
       await dataTable.waitForHeader();
 
       expect(await dataTable.isItemPresent(folderName1)).toBe(true, 'Folder not displayed in list view');
     });
 
-    it('creates new folder with name and description - [C216340]', async (done) => {
+    it('[C216340] creates new folder with name and description', async (done) => {
       await page.dataTable.doubleClickOnRowByName(parent);
       await page.sidenav.openCreateFolderDialog();
       await createDialog.waitForDialogToOpen();
       await createDialog.enterName(folderName2);
       await createDialog.enterDescription(folderDescription);
-      await createDialog.clickCreate();
+      await createDialog.createButton.click();
       await createDialog.waitForDialogToClose();
       await dataTable.waitForHeader();
 
@@ -113,29 +113,29 @@ describe('Create folder', () => {
       done();
     });
 
-    it('dialog UI elements - [C216345]', async () => {
+    it('[C216345] dialog UI elements', async () => {
       await page.dataTable.doubleClickOnRowByName(parent);
       await page.sidenav.openCreateFolderDialog();
       await createDialog.waitForDialogToOpen();
 
       expect(await createDialog.getTitle()).toMatch('Create new folder');
-      expect(await createDialog.isNameDisplayed()).toBe(true, 'Name input is not displayed');
-      expect(await createDialog.isDescriptionDisplayed()).toBe(true, 'Description field is not displayed');
+      expect(await createDialog.nameInput.isDisplayed()).toBe(true, 'Name input is not displayed');
+      expect(await createDialog.descriptionTextArea.isDisplayed()).toBe(true, 'Description field is not displayed');
       expect(await createDialog.isCreateButtonEnabled()).toBe(false, 'Create button is not disabled');
       expect(await createDialog.isCancelButtonEnabled()).toBe(true, 'Cancel button is not enabled');
     });
 
-    it('with empty folder name - [C216346]', async () => {
+    it('[C216346] with empty folder name', async () => {
       await page.dataTable.doubleClickOnRowByName(parent);
       await page.sidenav.openCreateFolderDialog();
       await createDialog.waitForDialogToOpen();
-      await createDialog.deleteNameWithBackspace();
+      await clearTextWithBackspace(createDialog.nameInput);
 
       expect(await createDialog.isCreateButtonEnabled()).toBe(false, 'Create button is enabled');
       expect(await createDialog.getValidationMessage()).toMatch('Folder name is required');
     });
 
-    it('with folder name ending with a dot "." - [C216348]', async () => {
+    it('[C216348] with folder name ending with a dot "."', async () => {
       await page.dataTable.doubleClickOnRowByName(parent);
       await page.sidenav.openCreateFolderDialog();
       await createDialog.waitForDialogToOpen();
@@ -145,7 +145,7 @@ describe('Create folder', () => {
       expect(await createDialog.getValidationMessage()).toMatch(`Folder name can't end with a period .`);
     });
 
-    it('with folder name containing special characters - [C216347]', async () => {
+    it('[C216347] with folder name containing special characters', async () => {
       const namesWithSpecialChars = [ 'a*a', 'a"a', 'a<a', 'a>a', `a\\a`, 'a/a', 'a?a', 'a:a', 'a|a' ];
 
       await page.dataTable.doubleClickOnRowByName(parent);
@@ -159,7 +159,7 @@ describe('Create folder', () => {
       }
     });
 
-    it('with folder name containing only spaces - [C280406]', async () => {
+    it('[C280406] with folder name containing only spaces', async () => {
       await page.dataTable.doubleClickOnRowByName(parent);
       await page.sidenav.openCreateFolderDialog();
       await createDialog.waitForDialogToOpen();
@@ -169,7 +169,7 @@ describe('Create folder', () => {
       expect(await createDialog.getValidationMessage()).toMatch(`Folder name can't contain only spaces`);
     });
 
-    it('cancel folder creation - [C216349]', async () => {
+    it('[C216349] cancel folder creation', async () => {
       await page.dataTable.doubleClickOnRowByName(parent);
       await page.sidenav.openCreateFolderDialog();
       await createDialog.waitForDialogToOpen();
@@ -180,23 +180,23 @@ describe('Create folder', () => {
       expect(await createDialog.isDialogOpen()).not.toBe(true, 'dialog is not closed');
     });
 
-    it('duplicate folder name - [C216350]', async () => {
+    it('[C216350] duplicate folder name', async () => {
       await page.dataTable.doubleClickOnRowByName(parent);
       await page.sidenav.openCreateFolderDialog();
       await createDialog.waitForDialogToOpen();
       await createDialog.enterName(duplicateFolderName);
-      await createDialog.clickCreate();
+      await createDialog.createButton.click();
 
       expect(await page.getSnackBarMessage()).toEqual(`There's already a folder with this name. Try a different name.`);
       expect(await createDialog.isDialogOpen()).toBe(true, 'dialog is not present');
     });
 
-    it('trim ending spaces from folder name - [C216351]', async () => {
+    it('[C216351] trim ending spaces from folder name', async () => {
       await page.dataTable.doubleClickOnRowByName(parent);
       await page.sidenav.openCreateFolderDialog();
       await createDialog.waitForDialogToOpen();
       await createDialog.enterName(nameWithSpaces);
-      await createDialog.clickCreate();
+      await createDialog.createButton.click();
       await createDialog.waitForDialogToClose();
       await dataTable.waitForHeader();
 
@@ -217,13 +217,13 @@ describe('Create folder', () => {
       done();
     });
 
-    it('creates new folder with name and description - [C280394]', async () => {
+    it('[C280394] creates new folder with name and description', async () => {
       await page.dataTable.doubleClickOnRowByName(siteName);
       await page.sidenav.openCreateFolderDialog();
       await createDialog.waitForDialogToOpen();
       await createDialog.enterName(folderSite);
       await createDialog.enterDescription(folderDescription);
-      await createDialog.clickCreate();
+      await createDialog.createButton.click();
       await createDialog.waitForDialogToClose();
       await dataTable.waitForHeader();
 
@@ -232,7 +232,7 @@ describe('Create folder', () => {
       expect(desc).toEqual(folderDescription);
     });
 
-    it('cancel folder creation - [C280403]', async () => {
+    it('[C280403] cancel folder creation', async () => {
       await page.dataTable.doubleClickOnRowByName(siteName);
       await page.sidenav.openCreateFolderDialog();
       await createDialog.waitForDialogToOpen();
@@ -243,12 +243,12 @@ describe('Create folder', () => {
       expect(await createDialog.isDialogOpen()).not.toBe(true, 'dialog is not closed');
     });
 
-    it('duplicate folder name - [C280404]', async () => {
+    it('[C280404] duplicate folder name', async () => {
       await page.dataTable.doubleClickOnRowByName(siteName);
       await page.sidenav.openCreateFolderDialog();
       await createDialog.waitForDialogToOpen();
       await createDialog.enterName(duplicateFolderSite);
-      await createDialog.clickCreate();
+      await createDialog.createButton.click();
 
       expect(await page.getSnackBarMessage()).toEqual(`There's already a folder with this name. Try a different name.`);
       expect(await createDialog.isDialogOpen()).toBe(true, 'dialog is not present');

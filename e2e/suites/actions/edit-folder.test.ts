@@ -27,7 +27,7 @@ import { LoginPage, BrowsingPage } from '../../pages/pages';
 import { SITE_VISIBILITY, SITE_ROLES } from '../../configs';
 import { RepoClient } from '../../utilities/repo-client/repo-client';
 import { CreateOrEditFolderDialog } from '../../components/dialog/create-edit-folder-dialog';
-import { Utils } from '../../utilities/utils';
+import { Utils, clearTextWithBackspace } from '../../utilities/utils';
 
 describe('Edit folder', () => {
   const username = `user-${Utils.random()}`;
@@ -118,11 +118,11 @@ describe('Edit folder', () => {
     done();
   });
 
-  it('dialog UI defaults - [C216331]', async () => {
+  it('[C216331] dialog UI defaults', async () => {
     await dataTable.doubleClickOnRowByName(parent);
     await dataTable.selectItem(folderName);
     await toolbar.openMoreMenu();
-    await toolbar.menu.clickEditFolder();
+    await toolbar.menu.editFolderAction.click();
 
     expect(await editDialog.getTitle()).toEqual('Edit folder');
     expect(await editDialog.getName()).toBe(folderName);
@@ -139,14 +139,14 @@ describe('Edit folder', () => {
       done();
     });
 
-    it('properties are modified when pressing OK - [C216335]', async (done) => {
+    it('[C216335] properties are modified when pressing OK', async (done) => {
       await dataTable.selectItem(folderNameToEdit);
       await toolbar.openMoreMenu();
-      await toolbar.menu.clickEditFolder();
+      await toolbar.menu.editFolderAction.click();
       await editDialog.waitForDialogToOpen();
       await editDialog.enterDescription(folderDescriptionEdited);
       await editDialog.enterName(folderNameEdited);
-      await editDialog.clickUpdate();
+      await editDialog.updateButton.click();
       await editDialog.waitForDialogToClose();
       await dataTable.waitForHeader();
 
@@ -156,22 +156,22 @@ describe('Edit folder', () => {
       done();
     });
 
-    it('with empty folder name - [C216332]', async () => {
+    it('[C216332] with empty folder name', async () => {
       await dataTable.selectItem(folderName);
       await toolbar.openMoreMenu();
-      await toolbar.menu.clickEditFolder();
-      await editDialog.deleteNameWithBackspace();
+      await toolbar.menu.editFolderAction.click();
+      await clearTextWithBackspace(editDialog.nameInput);
 
       expect(await editDialog.isUpdateButtonEnabled()).toBe(false, 'upload button is not enabled');
       expect(await editDialog.getValidationMessage()).toMatch('Folder name is required');
     });
 
-    it('with name with special characters - [C216333]', async () => {
+    it('[C216333] with name with special characters', async () => {
       const namesWithSpecialChars = [ 'a*a', 'a"a', 'a<a', 'a>a', `a\\a`, 'a/a', 'a?a', 'a:a', 'a|a' ];
 
       await dataTable.selectItem(folderName);
       await toolbar.openMoreMenu();
-      await toolbar.menu.clickEditFolder();
+      await toolbar.menu.editFolderAction.click();
 
       for (const name of namesWithSpecialChars) {
         await editDialog.enterName(name);
@@ -180,10 +180,10 @@ describe('Edit folder', () => {
       }
     });
 
-    it('with name ending with a dot - [C216334]', async () => {
+    it('[C216334] with name ending with a dot', async () => {
       await dataTable.selectItem(folderName);
       await toolbar.openMoreMenu();
-      await toolbar.menu.clickEditFolder();
+      await toolbar.menu.editFolderAction.click();
       await editDialog.waitForDialogToOpen();
       await editDialog.nameInput.sendKeys('.');
 
@@ -191,37 +191,37 @@ describe('Edit folder', () => {
       expect(await editDialog.getValidationMessage()).toMatch(`Folder name can't end with a period .`);
     });
 
-    it('Cancel button - [C216336]', async () => {
+    it('[C216336] Cancel button', async () => {
       await dataTable.selectItem(folderName);
       await toolbar.openMoreMenu();
-      await toolbar.menu.clickEditFolder();
+      await toolbar.menu.editFolderAction.click();
       await editDialog.waitForDialogToOpen();
       await editDialog.clickCancel();
 
       expect(await editDialog.isDialogOpen()).not.toBe(true, 'dialog is not closed');
     });
 
-    it('with duplicate folder name - [C216337]', async () => {
+    it('[C216337] with duplicate folder name', async () => {
       await dataTable.selectItem(folderName);
       await toolbar.openMoreMenu();
-      await toolbar.menu.clickEditFolder();
+      await toolbar.menu.editFolderAction.click();
       await editDialog.waitForDialogToOpen();
       await editDialog.enterName(duplicateFolderName);
-      await editDialog.clickUpdate();
+      await editDialog.updateButton.click();
 
       expect(await page.getSnackBarMessage()).toEqual(`There's already a folder with this name. Try a different name.`);
       expect(await editDialog.isDialogOpen()).toBe(true, 'dialog is not present');
     });
 
-    it('trim ending spaces - [C216338]', async () => {
+    it('[C216338] trim ending spaces', async () => {
       await dataTable.selectItem(folderName);
       await toolbar.openMoreMenu();
-      await toolbar.menu.clickEditFolder();
+      await toolbar.menu.editFolderAction.click();
       await editDialog.nameInput.sendKeys('   ');
-      await editDialog.clickUpdate();
+      await editDialog.updateButton.click();
       await editDialog.waitForDialogToClose();
 
-      expect(await page.isSnackBarPresent()).not.toBe(true, 'notification appears');
+      expect(await page.snackBar.isPresent()).not.toBe(true, 'notification appears');
       expect(await dataTable.isItemPresent(folderName)).toBe(true, 'Folder not displayed in list view');
     });
   });
@@ -232,14 +232,14 @@ describe('Edit folder', () => {
       done();
     });
 
-    it('properties are modified when pressing OK - [C280384]', async (done) => {
+    it('[C280384] properties are modified when pressing OK', async (done) => {
       await dataTable.selectItem(folderFavoriteToEdit);
       await toolbar.openMoreMenu();
-      await toolbar.menu.clickEditFolder();
+      await toolbar.menu.editFolderAction.click();
       await editDialog.waitForDialogToOpen();
       await editDialog.enterDescription(folderDescriptionEdited);
       await editDialog.enterName(folderNameEdited);
-      await editDialog.clickUpdate();
+      await editDialog.updateButton.click();
       await editDialog.waitForDialogToClose();
       await dataTable.waitForHeader();
 
@@ -249,13 +249,13 @@ describe('Edit folder', () => {
       done();
     });
 
-    it('with duplicate folder name - [C280386]', async () => {
+    it('[C280386] with duplicate folder name', async () => {
       await dataTable.selectItem(folderFavorite);
       await toolbar.openMoreMenu();
-      await toolbar.menu.clickEditFolder();
+      await toolbar.menu.editFolderAction.click();
       await editDialog.waitForDialogToOpen();
       await editDialog.enterName(folderFavoriteDuplicate);
-      await editDialog.clickUpdate();
+      await editDialog.updateButton.click();
 
       expect(await page.getSnackBarMessage()).toEqual(`There's already a folder with this name. Try a different name.`);
       expect(await editDialog.isDialogOpen()).toBe(true, 'dialog is not present');
@@ -269,14 +269,14 @@ describe('Edit folder', () => {
       done();
     });
 
-    it('properties are modified when pressing OK - [C280509]', async (done) => {
+    it('[C280509] properties are modified when pressing OK', async (done) => {
       await dataTable.selectItem(folderSiteToEdit);
       await toolbar.openMoreMenu();
-      await toolbar.menu.clickEditFolder();
+      await toolbar.menu.editFolderAction.click();
       await editDialog.waitForDialogToOpen();
       await editDialog.enterDescription(folderDescriptionEdited);
       await editDialog.enterName(folderNameEdited);
-      await editDialog.clickUpdate();
+      await editDialog.updateButton.click();
       await editDialog.waitForDialogToClose();
       await dataTable.waitForHeader();
 
@@ -286,13 +286,13 @@ describe('Edit folder', () => {
       done();
     });
 
-    it('with duplicate folder name - [C280511]', async () => {
+    it('[C280511] with duplicate folder name', async () => {
       await dataTable.selectItem(folderSite);
       await toolbar.openMoreMenu();
-      await toolbar.menu.clickEditFolder();
+      await toolbar.menu.editFolderAction.click();
       await editDialog.waitForDialogToOpen();
       await editDialog.enterName(duplicateFolderSite);
-      await editDialog.clickUpdate();
+      await editDialog.updateButton.click();
 
       expect(await page.getSnackBarMessage()).toEqual(`There's already a folder with this name. Try a different name.`);
       expect(await editDialog.isDialogOpen()).toBe(true, 'dialog is not present');
@@ -305,7 +305,7 @@ describe('Edit folder', () => {
       done();
     });
 
-    it('properties are modified when pressing OK - [C306947]', async () => {
+    it('[C306947] properties are modified when pressing OK', async () => {
       await page.clickPersonalFiles();
       await searchInput.clickSearchButton();
       await searchInput.checkOnlyFolders();
@@ -314,11 +314,11 @@ describe('Edit folder', () => {
 
       await dataTable.selectItem(folderSearchToEdit);
       await toolbar.openMoreMenu();
-      await toolbar.menu.clickEditFolder();
+      await toolbar.menu.editFolderAction.click();
       await editDialog.waitForDialogToOpen();
       await editDialog.enterDescription(folderDescriptionEdited);
       await editDialog.enterName(folderNameEdited2);
-      await editDialog.clickUpdate();
+      await editDialog.updateButton.click();
       await editDialog.waitForDialogToClose();
 
       await page.refresh();
@@ -327,7 +327,7 @@ describe('Edit folder', () => {
       expect(desc).toEqual(folderDescriptionEdited);
     });
 
-    it('with duplicate folder name - [C306948]', async () => {
+    it('[C306948] with duplicate folder name', async () => {
       await page.clickPersonalFiles();
       await searchInput.clickSearchButton();
       await searchInput.checkOnlyFolders();
@@ -336,10 +336,10 @@ describe('Edit folder', () => {
 
       await dataTable.selectItem(folderSearch);
       await toolbar.openMoreMenu();
-      await toolbar.menu.clickEditFolder();
+      await toolbar.menu.editFolderAction.click();
       await editDialog.waitForDialogToOpen();
       await editDialog.enterName(folderSearchDuplicate);
-      await editDialog.clickUpdate();
+      await editDialog.updateButton.click();
 
       expect(await page.getSnackBarMessage()).toEqual(`There's already a folder with this name. Try a different name.`);
       expect(await editDialog.isDialogOpen()).toBe(true, 'dialog is not present');
